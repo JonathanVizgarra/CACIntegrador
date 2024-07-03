@@ -1,17 +1,33 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const path = require('path');
+require('dotenv').config();
+const db = require('./db/db');
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const usuariosRouter = require('./routes/usuarios');
 const authRouter = require('./routes/auth');
 
-const port = process.env.PORT || 3000;
+app.use('/api/usuarios', usuariosRouter);
+app.use('/api/auth', authRouter);
 
-app.use(express.json());
-app.use('/usuarios', usuariosRouter);
-app.use('/auth', authRouter);
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Servir archivos estáticos
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
-app.listen(port, () => {
-    console.log(`Servidor ejecutándose en el puerto ${port}`);
+// Ruta para servir las vistas
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'login.html'));
+});
+
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'register.html'));
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor ejecutándose en el puerto ${PORT}`);
 });
